@@ -20,6 +20,7 @@ import time
 
 os.chdir('/Users/hye42/OneDrive - UW-Madison/Quantile_antirank/Case study') #office computer
 
+## Import standardized normal (in-control) and abnormal (out-of-control) data
 
 df_norm = pd.read_csv('df_norm_standardized.csv')
 df_abnorm = pd.read_csv('df_abnorm_standardized.csv')
@@ -30,6 +31,14 @@ df_norm1 = df_norm1.transpose()
 
 
 def learn_rank(X):
+    
+    '''
+    Learn the in-control probabilities based on historical in-controal data
+    Input: a p by size matrix, where p is the number of data streams and size is number of observations
+    Output: two p by 1 vectors (prob_min is for detecting downward mean shift, prob_max is for detecting upward mean shift)
+    The sum of each vector equals to 1.
+    '''
+    
     p = X.shape[0]
     size = X.shape[1]
          
@@ -55,6 +64,9 @@ def learn_rank(X):
 
 def dirichlet_sample(data):
     
+    '''
+    The function to generate a random sample from dirichlet distribution
+    '''
     rnd_dat = np.random.gamma(data,1)
     
     return rnd_dat/sum(rnd_dat)
@@ -62,6 +74,21 @@ def dirichlet_sample(data):
 
 def AiTS(ic,r,k,h,g_min, g_max):
     
+    '''
+    Main function of the AiTS algorithm
+    
+    Input: 
+    ic: indicator to indicate whether the setup is for in-control or out-of-control
+    r: the number of observable data streams ( r < p )
+    k: the allowance parameter to restart the CUSUM (start choosing k = 0.1 if not sure)
+    h: the prespecified threshold to raise the alarm
+    g_min: the prob_min for detecting downward mean shift
+    g_max: the prob_max for detecting upward mean shift
+    
+    Output:
+    the run length, i.e. when the chart raises the alarm
+    
+    '''
     if ic == 1:
         randomlist = np.random.choice(1294, 3000)
         X = df_norm.iloc[randomlist,:]
@@ -260,11 +287,14 @@ def AiTS(ic,r,k,h,g_min, g_max):
 
 def learn(r,k,h,g_min,g_max):
  
+    '''
+    Parallel computation for average run lenght based on 5000 simulation runs when the process is in control
+    '''
     
     T = 5000      
     num_cores = 25 
     
-    Y = Parallel(n_jobs = num_cores,max_nbytes= None)(delayed(AiTS)(1,r,k,h,g_min, g_max) for i in range(T))
+    Y = Parallel(n_jobs = num_cores,max_nbytes= None)(delayed(AiTS)(1,r,k,h,g_min, g_max) for i in range(T)) ## in-control set up 
 
     Y1 = np.asarray(Y)
     ARL = np.mean(Y1)
@@ -273,7 +303,12 @@ def learn(r,k,h,g_min,g_max):
     return [ARL, std_ARL] 
 
 
+
 def learn_oc(r,k,h,g_min,g_max):
+
+    '''
+    Parallel computation for average run lenght based on 5000 simulation runs when the process is out of control
+    '''
     
     T = 5000      
     num_cores = 25 
@@ -284,7 +319,11 @@ def learn_oc(r,k,h,g_min,g_max):
 
 def learnh_ic(r,k,g_min, g_max):
 
-
+    '''
+    Function to learn the threshold h based on in-control average run length, which is 370 here. 
+    We use the bisection method to learn this threshold
+    '''
+    
     RL = 370
     small_delta = 2
     h1 = 10
