@@ -114,7 +114,7 @@ def AiTS(ic,r,k,h,g_min, g_max):
         
         X = np.concatenate((X0, X1), axis = 1)
     
-    time_start = time.perf_counter()
+    #time_start = time.perf_counter()
     p = np.shape(X)[0]
     q = np.shape(X)[1]
     
@@ -276,13 +276,11 @@ def AiTS(ic,r,k,h,g_min, g_max):
             observed_up =   N.argsort()[::-1][:r]
             unobserved_up = np.setdiff1d(fulllist, observed_up)
     
-        y_up[i] = max(0, C_up[i] - k)
-        
-      
+        y_up[i] = max(0, C_up[i] - k) 
         y[i]  = np.max([y_down[i], y_up[i]])
         
         i = i + 1
-    print((time.perf_counter() - time_start)/3)
+    #print((time.perf_counter() - time_start)/3)
     return(i - 1)
 
 def learn(r,k,h,g_min,g_max):
