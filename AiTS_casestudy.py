@@ -34,7 +34,9 @@ def learn_rank(X):
     
     '''
     Learn the in-control probabilities based on historical in-controal data
+    
     Input: a p by size matrix, where p is the number of data streams and size is number of observations
+    
     Output: two p by 1 vectors (prob_min is for detecting downward mean shift, prob_max is for detecting upward mean shift)
     The sum of each vector equals to 1.
     '''
@@ -115,8 +117,8 @@ def AiTS(ic,r,k,h,g_min, g_max):
         X = np.concatenate((X0, X1), axis = 1)
     
     #time_start = time.perf_counter()
-    p = np.shape(X)[0]
-    q = np.shape(X)[1]
+    p = np.shape(X)[0] ## the number of data streams in total
+    q = np.shape(X)[1] ## the time epoch for monitoring
     
     fulllist = np.arange(0,p,1) 
     observed_up = np.arange(0,r,1)
@@ -134,17 +136,17 @@ def AiTS(ic,r,k,h,g_min, g_max):
     C_down  = np.zeros(q)
     C_up  = np.zeros(q)
   
-    xi_down = np.zeros([p,q])
-    xi_up = np.zeros([p,q])
+    xi_down = np.zeros([p,q])    ## first antirank indicator for downward detection
+    xi_up = np.zeros([p,q])      ## first rank indicator for upward detection
     
-    theta_down = np.zeros([p,q])
-    theta_up = np.zeros([p,q])
+    theta_down = np.zeros([p,q]) ## estimate of categorical distribution for downward detection
+    theta_up = np.zeros([p,q])   ## estimate of categorical distribution for upward detection
 
-    y_down  = np.zeros(q)
-    y_up  = np.zeros(q)
+    y_down  = np.zeros(q) ## monitoring statistic for downward detection
+    y_up  = np.zeros(q)   ## monitoring statistic for upward detection
     
-    alpha_down = g_min
-    alpha_up = g_max
+    alpha_down = g_min ## parameter for dirichlet distribution for downward detection
+    alpha_up = g_max   ## parameter for dirichlet distribution for upward detection
     
     y = np.zeros(q)
 
