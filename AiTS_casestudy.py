@@ -33,12 +33,13 @@ df_norm1 = df_norm1.transpose()
 def learn_rank(X):
     
     '''
-    Learn the in-control probabilities based on historical in-controal data
+    Function to learn the in-control probabilities based on historical in-controal data
     
     Input: a p by size matrix, where p is the number of data streams and size is number of observations
     
     Output: two p by 1 vectors (prob_min is for detecting downward mean shift, prob_max is for detecting upward mean shift)
     The sum of each vector equals to 1.
+    
     '''
     
     p = X.shape[0]
@@ -67,7 +68,7 @@ def learn_rank(X):
 def dirichlet_sample(data):
     
     '''
-    The function to generate a random sample from dirichlet distribution
+    Function to generate a random sample from dirichlet distribution
     '''
     rnd_dat = np.random.gamma(data,1)
     
